@@ -1,20 +1,18 @@
-import NoteListClient from './Notes.client';
-import { QueryClient, HydrationBoundary, dehydrate } from '@tanstack/react-query';
-import { fetchServerNotes } from '@/lib/api/serverApi';
-import type { Metadata } from 'next';
+import NoteListClient from "./Notes.client";
+import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
+import { fetchServerNotes } from "@/lib/api/serverApi";
+import { Metadata } from "next";
 
 type Props = {
-  params: {
-    slug: string[];
-  };
+  params: { slug: string[] };
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
-  const tag = params.slug?.[0] ?? 'all';
+  const tag = await params.slug[0];
 
   const title = `Notes filtered by: ${tag}`;
   const description = `Review of notes filtered by "${tag}".`;
-  const url = `https://09-auth-six-zeta.vercel.app/notes/filter/${tag}`;
+  const url = `https://09-auth-six-zeta.vercel.app/notes/filter/${params.slug[0]}`;
 
   return {
     title,
@@ -26,10 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       siteName: 'NoteHub',
       images: [
         {
-          url: 'https://ac.goit.global/fullstack/react/notehub-og-meta.jpg',
+          url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
           width: 1200,
           height: 630,
-          alt: 'NoteHub preview',
+          alt: "Title",
         },
       ],
       type: 'website',
@@ -38,20 +36,29 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 }
 
 export default async function App({ params }: Props) {
-  const queryClient = new QueryClient();
+  const queryClient = new QueryClient()
+	const { slug } = await params
+	const tag = slug[0] === "All" ? undefined : slug[0]
 
-  const slug = params.slug ?? [];
-  const rawTag = slug[0]?.toLowerCase();
-  const tag = rawTag === 'all' ? undefined : slug[0];
 
   await queryClient.prefetchQuery({
-    queryKey: ['notes', { query: '', page: 1, tag }],
-    queryFn: () => fetchServerNotes(1, '', tag),
+    queryKey: ['notes', { query: "", page: 1, tag: tag }],
+    queryFn: () => fetchServerNotes(1, "", tag ),
   });
 
   return (
-    <HydrationBoundary state={dehydrate(queryClient)}>
-      <NoteListClient tag={tag} />
-    </HydrationBoundary>
+    <div>
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <NoteListClient tag={tag}   />
+      </HydrationBoundary>
+    </div>
   );
 }
+
+
+
+
+
+
+
+
