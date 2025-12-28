@@ -6,8 +6,8 @@
   display: flex;
   flex-direction: column;
   gap: 16px;
-  max-width: 400px; /* одинаково с Sign-in */
-  margin: 40px auto; /* центрирование блока */
+  max-width: 400px;
+  margin: 40px auto;
   padding: 24px;
   background-color: #fff;
   border: 1px solid #dee2e6;
@@ -57,7 +57,12 @@
 }
 
 .submitButton:hover {
-  background-color: #0b5ed7;
+  background-color: #0d6efd;
+}
+
+.submitButton:disabled {
+  background-color: #b1c7ae;
+  cursor: not-allowed;
 }
 
 .error {
