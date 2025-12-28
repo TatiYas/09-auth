@@ -1,7 +1,7 @@
 'use client';
 
 import { checkSession, getMe } from '@/lib/api/clientApi';
-import { useAuthStore } from '@/lib/store/authStore';
+import { useAuthStore } from '@/lib/store/authStore'
 import { useEffect } from 'react';
 
 type Props = {
@@ -14,28 +14,21 @@ const AuthProvider = ({ children }: Props) => {
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const isAuthenticated = await checkSession();
 
-        if (isAuthenticated) {
-          const user = await getMe();
-          if (user) {
-            setUser(user);
-          }
-        } else {
-          clearIsAuthenticated();
-        }
-      } catch (error) {
-        // Обработка ошибок, если нужно
-        console.error('Error checking user session:', error);
+      const isAuthenticated = await checkSession();
+      if (isAuthenticated) {
+     
+        const user = await getMe();
+        if (user) setUser(user);
+      } else {
+      
         clearIsAuthenticated();
       }
     };
-
     fetchUser();
   }, [setUser, clearIsAuthenticated]);
 
-  return <>{children}</>;
+  return children;
 };
 
 export default AuthProvider;
