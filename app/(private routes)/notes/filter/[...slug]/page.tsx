@@ -1,3 +1,6 @@
+import NoteListClient from './Notes.client';
+import { QueryClient, HydrationBoundary, dehydrate } from '@tanstack/react-query';
+import { fetchServerNotes } from '@/lib/api/serverApi';
 import type { Metadata } from 'next';
 
 type Props = {
@@ -32,4 +35,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       type: 'website',
     },
   };
+}
+
+export default async function App({ params }: Props) {
+  const queryClient = new QueryClient();
+
+  const slug = params.slug ?? [];
+  const rawTag = slug[0]?.toLowerCase();
+  const tag = rawTag === 'all' ? undefined : slug[0];
+
+  await queryClient.prefetchQuery({
+    queryKey: ['notes', { query: '', page: 1, tag }],
+    queryFn: () => fetchServerNotes(1, '', tag),
+  });
+
+  return (
+    <HydrationBoundary state={dehydrate(queryClient)}>
+      <NoteListClient tag={tag} />
+    </HydrationBoundary>
+  );
 }
