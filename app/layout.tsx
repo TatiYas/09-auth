@@ -1,37 +1,36 @@
 import type { Metadata } from "next";
 import { Roboto } from "next/font/google";
 import "./globals.css";
-import Header from '../components/Header/Header'
-import Footer from '../components/Footer/Footer'
+
 import TanStackProvider from "@/components/TanStackProvider/TanStackProvider";
-import AuthProvider from  '../components/AuthProvider/AuthProvider'
+import Header from "@/components/Header/Header";
+import Footer from "@/components/Footer/Footer";
+import AuthProvider from "@/components/AuthProvider/AuthProvider";
+/* import AuthNavigation from "@/components/AuthNavigation/AuthNavigation"; */
 
 const roboto = Roboto({
-  variable: "--font-roboto",
   subsets: ["latin"],
-weight: ['400', '700'],
-display: 'swap',
+  weight: ["400", "700"],
+  variable: "--font-roboto",
+  display: "swap",
 });
-
 
 export const metadata: Metadata = {
   title: "NoteHub",
-  description: "A simple and efficient application for managing personal notes.",
+  description: "Application for create, edit and search notes.",
   openGraph: {
-    title: "NoteHub - Your Personal Note-Taking App",
-    description: "Organize your thoughts and boost productivity with NoteHub, a simple and efficient note-taking application.",
-    url: "https://08-zustand-three-jet.vercel.app",
-    siteName: "NoteHub",
+    title: "NoteHub — modern notes manager",
+    description:
+      "Create, edit, and save notes online. A lightweight, fast, and convenient React application.",
+    url: "https://your-domain.com",
     images: [
       {
         url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
         width: 1200,
         height: 630,
-        alt: "NoteHub Logo",
+        alt: "NoteHub preview",
       },
     ],
-    locale: "en_US",
-    type: "website",
   },
 };
 
@@ -44,11 +43,11 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={roboto.variable}>
-       <TanStackProvider>
+      <body className={`${roboto.variable}`}>
+        <TanStackProvider>
           <AuthProvider>
             <Header />
-            {children}
+            <main>{children}</main>
             {modal}
             <Footer />
           </AuthProvider>
