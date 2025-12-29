@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { api } from '../../api';
+import { api } from '../api';
 import { cookies } from 'next/headers';
 import { isAxiosError } from 'axios';
-import { logErrorResponse } from '../../.utils/utils';
+import { logErrorResponse } from '../.utils/utils';
 
 export async function GET(request: NextRequest) {
   try {
