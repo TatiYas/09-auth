@@ -1,38 +1,34 @@
 import Link from 'next/link';
-import Image from 'next/image';
-import { redirect } from 'next/navigation';
-import type { Metadata } from 'next';
-
-import css from './ProfilePage.module.css';
+import css from './ProfilePage.module.css'
 import { getServerMe } from '@/lib/api/serverApi';
+import Image from 'next/image';
+import { Metadata } from 'next';
+import { redirect } from 'next/navigation'; // Import redirect from Next.js
 
 export async function generateMetadata(): Promise<Metadata> {
   const user = await getServerMe();
-
+  
+  // Handle the case where the user is null
   if (!user) {
     return {
-      title: 'Profile - NoteHub',
+      title: 'Profile - NoteHub', // Default metadata for a non-logged-in user
       description: 'User profile page for NoteHub',
     };
   }
 
-  const title = `${user.username} - NoteHub`;
-  const description = `Profile page of ${user.username}`;
-
   return {
-    title,
-    description,
+    title: `${user.username} - NoteHub`,
+    description: `Profile page of ${user.username}`,
     openGraph: {
-      title,
-      description,
-      url: 'https://notehub.example.com/profile', /*
-        Для робочого проекту — краще буде використати домен из env. */
+      title: `${user.username} - NoteHub`,
+      description: `Profile page of ${user.username}`,
+      url: `https://notehub.example.com/profile`,
       images: [
         {
           url: user.avatar,
           width: 1200,
           height: 630,
-          alt: `${user.username}'s avatar`,
+          alt: `${user.username}'s Avatar`,
         },
       ],
     },
@@ -42,6 +38,7 @@ export async function generateMetadata(): Promise<Metadata> {
 const Profile = async () => {
   const user = await getServerMe();
 
+  // If the user is not found, redirect them to the sign-in page
   if (!user) {
     redirect('/sign-in');
   }
@@ -49,33 +46,26 @@ const Profile = async () => {
   return (
     <main className={css.mainContent}>
       <div className={css.profileCard}>
-        <header className={css.header}>
+        <div className={css.header}>
           <h1 className={css.formTitle}>Profile Page</h1>
-
-          <Link
-            href="/profile/edit"
-            className={css.editProfileButton}
-          >
+          <Link href="/profile/edit" className={css.editProfileButton}>
             Edit Profile
           </Link>
-        </header>
-
+        </div>
         <div className={css.avatarWrapper}>
           <Image
             src={user.avatar}
-            alt={`${user.username}'s avatar`}
+            alt="User Avatar"
             width={120}
             height={120}
-            className={css.avatar}
-          />
+            className={css.avatar} />
         </div>
-
         <div className={css.profileInfo}>
           <p>
-            <strong>Username:</strong> {user.username}
+            Username: {user.username}
           </p>
           <p>
-            <strong>Email:</strong> {user.email}
+            Email: {user.email}
           </p>
         </div>
       </div>
