@@ -1,17 +1,21 @@
-import css from './layoutNotes.module.css';
+'use client';
+
+import { useEffect, useState } from 'react';
+import { useRouter } from 'next/navigation';
 
 type Props = {
   children: React.ReactNode;
-  sidebar: React.ReactNode;
 };
 
-const NotesLayout = ({ children, sidebar }: Props) => {
-  return (
-    <div className={css.container}>
-      <aside className={css.sidebar}>{sidebar}</aside>
-      <div className={css.notesWrapper}>{children}</div>
-    </div>
-  );
-};
+export default function PublicLayout({ children }: Props) {
+  const [loading, setLoading] = useState(true);
 
-export default NotesLayout;
+  const router = useRouter();
+
+  useEffect(() => {
+    router.refresh();
+    setLoading(false);
+  }, [router]);
+
+  return <>{loading ? <div>Loading... Please wait.</div> : children}</>;
+}
