@@ -8,7 +8,6 @@ const privateRoutes = [
   '/notes',
   '/notes/action/create',
   '/notes/action/edit',
-  '/notes',
 ];
 
 const publicRoutes = ['/sign-in', '/sign-up'];
@@ -22,25 +21,31 @@ export async function proxy(request: NextRequest) {
   const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
   const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
 
- 
+  
   if (accessToken) {
+   
     if (isPublicRoute) {
       return NextResponse.redirect(new URL('/', request.url));
     }
+
     return NextResponse.next();
   }
 
- 
+  // ------------------------------------------
+  // 2️⃣ Если нет accessToken, но есть refreshToken
+  // ------------------------------------------
   if (!accessToken && refreshToken) {
     try {
       const sessionRes = await checkServerSession();
       const setCookieHeader = sessionRes.headers['set-cookie'];
 
       if (setCookieHeader) {
+        // Создаем ответ: redirect для public route или next для private
         const response = isPublicRoute
           ? NextResponse.redirect(new URL('/', request.url))
           : NextResponse.next();
 
+       
         const cookiesArray = Array.isArray(setCookieHeader)
           ? setCookieHeader
           : [setCookieHeader];
@@ -48,23 +53,24 @@ export async function proxy(request: NextRequest) {
         for (const cookieStr of cookiesArray) {
           const parsed = parse(cookieStr);
 
+         
           if (parsed.accessToken) {
             response.cookies.set('accessToken', parsed.accessToken, {
               path: '/',
               httpOnly: true,
               sameSite: 'lax',
-              maxAge: parsed['Max-Age'] ? Number(parsed['Max-Age']) : undefined,
               secure: process.env.NODE_ENV === 'production',
+              maxAge: parsed['Max-Age'] ? Number(parsed['Max-Age']) : undefined,
             });
           }
-
+         
           if (parsed.refreshToken) {
             response.cookies.set('refreshToken', parsed.refreshToken, {
               path: '/',
               httpOnly: true,
               sameSite: 'lax',
-              maxAge: parsed['Max-Age'] ? Number(parsed['Max-Age']) : undefined,
               secure: process.env.NODE_ENV === 'production',
+              maxAge: parsed['Max-Age'] ? Number(parsed['Max-Age']) : undefined,
             });
           }
         }
@@ -76,12 +82,15 @@ export async function proxy(request: NextRequest) {
     }
   }
 
+
   if (isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
+ 
   return NextResponse.next();
 }
+
 
 export const config = {
   matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
