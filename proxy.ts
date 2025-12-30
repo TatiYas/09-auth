@@ -1,87 +1,108 @@
 // proxy.ts
 import { NextRequest, NextResponse } from 'next/server';
-import { cookies } from 'next/headers';
 import { parse } from 'cookie';
 import { checkServerSession } from './lib/api/serverApi';
 
-// Масив приватних маршрутів
 const privateRoutes = [
   '/profile',
+  '/notes',
   '/notes/action/create',
   '/notes/action/edit',
-  '/notes',
 ];
 
-// Публічні маршрути
 const publicRoutes = ['/sign-in', '/sign-up'];
 
 export async function proxy(request: NextRequest) {
   const { pathname } = request.nextUrl;
-  const cookieStore = await cookies();
 
-  const accessToken = cookieStore.get('accessToken')?.value;
-  const refreshToken = cookieStore.get('refreshToken')?.value;
+  const accessToken = request.cookies.get('accessToken')?.value;
+  const refreshToken = request.cookies.get('refreshToken')?.value;
 
-  const isPrivateRoute = privateRoutes.some(route => pathname.startsWith(route));
-  const isPublicRoute = publicRoutes.some(route => pathname.startsWith(route));
+  const isPrivateRoute = privateRoutes.some(route =>
+    pathname.startsWith(route)
+  );
 
-  //  Якщо є accessToken
+  const isPublicRoute = publicRoutes.some(route =>
+    pathname.startsWith(route)
+  );
+
+  /**
+   *  Access token є
+   */
   if (accessToken) {
-    // Авторизованный пользователь не должен видеть sign-in / sign-up
     if (isPublicRoute) {
       return NextResponse.redirect(new URL('/', request.url));
     }
-    // Доступ до приватних та публічних сторінок дозволений
+
     return NextResponse.next();
   }
 
-  //  Немає accessToken, але є refreshToken
+  /**
+   * Access token немає, але є refresh token
+   */
   if (!accessToken && refreshToken) {
     try {
       const sessionRes = await checkServerSession();
-      const setCookie = sessionRes.headers['set-cookie'];
+      const setCookieHeader = sessionRes.headers['set-cookie'];
 
-      if (setCookie) {
-        const cookieArray = Array.isArray(setCookie) ? setCookie : [setCookie];
+      if (setCookieHeader) {
+        const response = isPublicRoute
+          ? NextResponse.redirect(new URL('/', request.url))
+          : NextResponse.next();
 
-        for (const cookieStr of cookieArray) {
+        const cookiesArray = Array.isArray(setCookieHeader)
+          ? setCookieHeader
+          : [setCookieHeader];
+
+        for (const cookieStr of cookiesArray) {
           const parsed = parse(cookieStr);
-          const options = {
-            path: parsed.Path || '/',
-            expires: parsed.Expires ? new Date(parsed.Expires) : undefined,
-            maxAge: parsed['Max-Age'] ? Number(parsed['Max-Age']) : undefined,
-          };
 
-          if (parsed.accessToken) cookieStore.set('accessToken', parsed.accessToken, options);
-          if (parsed.refreshToken) cookieStore.set('refreshToken', parsed.refreshToken, options);
+          if (parsed.accessToken) {
+            response.cookies.set('accessToken', parsed.accessToken, {
+              path: '/',
+              httpOnly: true,
+              sameSite: 'lax',
+              expires: parsed.Expires
+                ? new Date(parsed.Expires)
+                : undefined,
+              maxAge: parsed['Max-Age']
+                ? Number(parsed['Max-Age'])
+                : undefined,
+            });
+          }
+
+          if (parsed.refreshToken) {
+            response.cookies.set('refreshToken', parsed.refreshToken, {
+              path: '/',
+              httpOnly: true,
+              sameSite: 'lax',
+              expires: parsed.Expires
+                ? new Date(parsed.Expires)
+                : undefined,
+              maxAge: parsed['Max-Age']
+                ? Number(parsed['Max-Age'])
+                : undefined,
+            });
+          }
         }
 
-        // Після silent refresh
-        if (isPublicRoute) {
-          return NextResponse.redirect(new URL('/', request.url), {
-            headers: { Cookie: cookieStore.toString() },
-          });
-        }
-
-        if (isPrivateRoute) {
-          return NextResponse.next({ headers: { Cookie: cookieStore.toString() } });
-        }
+        return response;
       }
-    } catch (err) {
-      console.error('Silent refresh failed:', err);
+    } catch (error) {
+      console.error('Silent refresh failed:', error);
     }
   }
 
-  // 3️⃣ Немає токенів
+  /**
+   * Немає жодної сесії
+   */
   if (isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
 
-  // Публічні сторінки доступні всім
   return NextResponse.next();
 }
 
-// Налаштування matcher для Next.js
 export const config = {
   matcher: ['/profile/:path*', '/notes/:path*', '/sign-in', '/sign-up'],
 };
