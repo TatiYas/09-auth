@@ -6,6 +6,7 @@ import type { Note } from "@/types/note";
 import type { User } from "@/types/user";
 import type { NoteResponse } from "./clientApi";
 
+
 const buildCookieHeader = async (): Promise<string> => {
   const cookieStore = await cookies();
 
@@ -14,6 +15,7 @@ const buildCookieHeader = async (): Promise<string> => {
     .map((c) => `${c.name}=${c.value}`)
     .join("; ");
 };
+
 
 export const checkServerSession = async (): Promise<AxiosResponse> => {
   const cookieHeader = await buildCookieHeader();
@@ -75,6 +77,7 @@ export const fetchServerNoteById = async (id: string): Promise<Note> => {
 
   return res.data;
 };
+
 
 
 //import { cookies } from "next/headers";
