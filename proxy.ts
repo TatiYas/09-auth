@@ -26,9 +26,7 @@ export async function proxy(request: NextRequest) {
     pathname.startsWith(route)
   );
 
-  /**
-   *  Access token є
-   */
+  
   if (accessToken) {
     if (isPublicRoute) {
       return NextResponse.redirect(new URL('/', request.url));
@@ -37,9 +35,7 @@ export async function proxy(request: NextRequest) {
     return NextResponse.next();
   }
 
-  /**
-   * Access token немає, але є refresh token
-   */
+  
   if (!accessToken && refreshToken) {
     try {
       const sessionRes = await checkServerSession();
@@ -93,9 +89,7 @@ export async function proxy(request: NextRequest) {
     }
   }
 
-  /**
-   * Немає жодної сесії
-   */
+  
   if (isPrivateRoute) {
     return NextResponse.redirect(new URL('/sign-in', request.url));
   }
