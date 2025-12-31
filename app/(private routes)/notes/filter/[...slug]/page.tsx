@@ -1,4 +1,4 @@
-/*import NoteListClient from "./Notes.client";
+import NoteListClient from "./Notes.client";
 import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { fetchServerNotes } from "@/lib/api/serverApi";
 import { Metadata } from "next";
@@ -53,10 +53,10 @@ export default async function App({ params }: Props) {
       </HydrationBoundary>
     </div>
   );
-}*/
+}
 
 
-import NoteListClient from "./Notes.client";
+/*import NoteListClient from "./Notes.client";
 import { QueryClient, HydrationBoundary, dehydrate } from "@tanstack/react-query";
 import { fetchServerNotes } from "@/lib/api/serverApi";
 import { Metadata } from "next";
@@ -111,7 +111,7 @@ export default async function App({ params }: Props) {
       </HydrationBoundary>
     </div>
   );
-}
+}*/
 
 
 
