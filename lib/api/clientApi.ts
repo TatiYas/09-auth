@@ -38,7 +38,7 @@ export const getMe = async () => {
 };
 
 export const updateMe = async (data: UpdateMeRequest): Promise<User> => {
-    const res = await nextServer.patch<User>('users/me', data);
+    const res = await nextServer.patch<User>('/users/me', data);
     return res.data;
 }
 
