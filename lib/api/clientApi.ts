@@ -33,7 +33,7 @@ export const checkSession = async () => {
 };
 
 export const getMe = async () => {
-  const res = await nextServer.get<User>('users/me');
+  const res = await nextServer.get<User>('/users/me');
   return res.data;
 };
 
@@ -43,17 +43,17 @@ export const updateMe = async (data: UpdateMeRequest): Promise<User> => {
 }
 
 export const register = async (userData: RegisterRequest) => {
-	const { data } = await nextServer.post<User>('auth/register', userData)
+	const { data } = await nextServer.post<User>('/auth/register', userData)
 	return data;
 }
 
 export const login = async (data: LoginRequest) => {
-    const res = await nextServer.post<User>('auth/login', data);
+    const res = await nextServer.post<User>('/auth/login', data);
     return res.data;
 }
 
 export const logout = async (): Promise<void> => {
-    await nextServer.post('auth/logout');
+    await nextServer.post('/auth/logout');
 }
 
 export const fetchNotes = async (page: number, query: string, tag?: string): Promise<NoteResponse> => {

@@ -41,7 +41,7 @@ export const fetchServerNotes = async (page: number, query: string, tag?: string
             Cookie: cookieStore.toString(),
         }
     }
-    const response = await nextServer.get<NoteResponse>('/notes', params);
+    const response = await nextServer.get<NoteResponse>('/notes/', params);
     return response.data;
 }
 
