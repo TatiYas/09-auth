@@ -33,12 +33,12 @@ export const checkSession = async () => {
 };
 
 export const getMe = async () => {
-  const res = await nextServer.get<User>('/app/api/users/me');
+  const res = await nextServer.get<User>('users/me');
   return res.data;
 };
 
 export const updateMe = async (data: UpdateMeRequest): Promise<User> => {
-    const res = await nextServer.patch<User>('/app/api/users/me', data);
+    const res = await nextServer.patch<User>('users/me', data);
     return res.data;
 }
 
