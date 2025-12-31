@@ -12,7 +12,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
   const title = `Notes filtered by: ${tag}`;
   const description = `Review of notes filtered by "${tag}".`;
-  const url = `https://09-auth-six-zeta.vercel.app/notes/filter/${params.slug[0]}`;
+  const url = `https://09-auth-1vfd.vercel.app//notes/filter/${params.slug[0]}`;
 
   return {
     title,
