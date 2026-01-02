@@ -8,15 +8,13 @@ type Props = {
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
- const slug = params?.slug || []; // защита от undefined
- const tag = Array.isArray(slug) ? slug[0] : undefined;
-
- const displayTag = tag === "ALL" || !tag ? "all" : tag;
+ const awaitedParams = await params; // обязательно await!
+ const slug = awaitedParams?.slug || [];
+ const rawTag = Array.isArray(slug) ? slug[0] : undefined;
+ const displayTag = rawTag === 'ALL' || !rawTag ? 'all' : rawTag;
 
  const title = `Notes filtered by: ${displayTag}`;
  const description = `Review of notes "${displayTag}".`;
-
- const url = `https://09-auth-ten-tan.vercel.app/notes/filter/${tag || 'all'}`;
 
  return {
  title,
@@ -24,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  openGraph: {
  title,
  description,
- url,
+ url: `https://09-auth-ten-tan.vercel.app/notes/filter/${rawTag || 'all'}`,
  siteName: 'NoteHub',
  images: [
  {
@@ -39,8 +37,6 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  },
  };
 }
-
-
 export default async function App({ params }: Props) {
   const queryClient = new QueryClient()
 	const { slug } = await params
