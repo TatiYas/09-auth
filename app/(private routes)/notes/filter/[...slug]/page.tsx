@@ -4,17 +4,19 @@ import { fetchServerNotes } from "@/lib/api/serverApi";
 import { Metadata } from "next";
 
 type Props = {
-  params: { slug: string[] };
+ params: { slug: string[] };
 };
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
- const awaitedParams = await params; // обязательно await!
- const slug = awaitedParams?.slug || [];
- const rawTag = Array.isArray(slug) ? slug[0] : undefined;
- const displayTag = rawTag === 'ALL' || !rawTag ? 'all' : rawTag;
+ const awaitedParams = await params;
+ const slug = awaitedParams.slug?.[0];
+ const rawTag = slug ?? undefined;
+
+
+ const displayTag = rawTag === "All" || !rawTag ? "all" : rawTag;
 
  const title = `Notes filtered by: ${displayTag}`;
- const description = `Review of notes "${displayTag}".`;
+ const description = `Review of notes "${displayTag}"...`;
 
  return {
  title,
@@ -22,8 +24,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  openGraph: {
  title,
  description,
- url: `https://09-auth-ten-tan.vercel.app/notes/filter/${rawTag || 'all'}`,
- siteName: 'NoteHub',
+ url: `https://09-auth-ten-tan.vercel.app/notes/filter/${rawTag || "all"}`,
+ siteName: "NoteHub",
  images: [
  {
  url: "https://ac.goit.global/fullstack/react/notehub-og-meta.jpg",
@@ -37,24 +39,26 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
  },
  };
 }
+
 export default async function App({ params }: Props) {
-  const queryClient = new QueryClient()
-	const { slug } = await params
-	const tag = slug[0] === "All" ? undefined : slug[0]
+ const queryClient = new QueryClient();
+ const { slug } = await params;
 
+ const tag = slug?.[0] === "All" || !slug?.[0] ? undefined : slug[0];
 
-  await queryClient.prefetchQuery({
-    queryKey: ['notes', { query: "", page: 1, tag: tag }],
-    queryFn: () => fetchServerNotes(1, "", tag ),
-  });
+ 
+ await queryClient.prefetchQuery({
+ queryKey: ["notes", { query: "", page: 1, tag: tag ?? null }],
+ queryFn: () => fetchServerNotes(1, "", tag), 
+ });
 
-  return (
-    <div>
-      <HydrationBoundary state={dehydrate(queryClient)}>
-        <NoteListClient tag={tag}   />
-      </HydrationBoundary>
-    </div>
-  );
+ return (
+ <div>
+ <HydrationBoundary state={dehydrate(queryClient)}>
+ <NoteListClient tag={tag} />
+ </HydrationBoundary>
+ </div>
+ );
 }
 
 
